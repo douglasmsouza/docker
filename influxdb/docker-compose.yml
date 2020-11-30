@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: influxdb
+    container_name: influxdb
+    ports:
+      - 8086:8086
+    environment:
+      - INFLUXDB_DB=testdb
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=test
+    restart: "no"
