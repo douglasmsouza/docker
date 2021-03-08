@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  cassandra:
+    image: cassandra:3.4
+    container_name: cassandra
+    ports:
+      - 9042:9042
+    restart: "no"
