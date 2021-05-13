@@ -50,6 +50,7 @@ services:
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
+    container_name: kong
     user: "${KONG_USER:-kong}"
     depends_on:
       - db
@@ -86,6 +87,7 @@ services:
     
   db:
     image: postgres:9.6
+    container_name: kong_db
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -109,6 +111,19 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+
+  konga:
+    image: pantsel/konga:latest
+    container_name: konga
+    ports:
+      - 1337:1337
+    networks:
+      - kong-net
+    environment:
+      NODE_ENV: development
+      TOKEN_SECRET: kong-secret
+    depends_on:
+      - kong
 
 secrets:
   kong_postgres_password:
