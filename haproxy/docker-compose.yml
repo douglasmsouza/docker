@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  haproxy:
+    image: haproxy:2.4-alpine
+    container_name: haproxy
+    restart: "no"
+    ports:
+      - 8080:8080
+      - 1936:1936
+    volumes:
+      - ./cfg/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./errors:/usr/local/etc/haproxy/custom-errors
