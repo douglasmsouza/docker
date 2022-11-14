@@ -1,34 +1,293 @@
 _format_version: "1.1"
-
 services:
-  - name: reqres
-    protocol: http
-    host: reqres.in
-    port: 80
-    path: /
-    connect_timeout: 60000
+  - connect_timeout: 60000
+    host: public-api.flowti.tec.br
+    name: flowti-api-gateway
+    protocol: https
+    port: 443
     read_timeout: 60000
+    retries: 5
     write_timeout: 60000
-    retries: 1
     routes:
-      - name: reqres
+      - name: api-flowti-routes
+        hosts:
+          - localhost
         methods:
           - GET
+          - OPTIONS
+          - POST
+          - DELETE
+          - PATCH
         paths:
-          - /
+          - /api/v1
+        path_handling: v0
         preserve_host: false
         protocols:
           - http
           - https
         regex_priority: 0
-        strip_path: true
-
-plugins: 
-- name: http-log
-  config:
-    http_endpoint: https://webhook.site/ff74d843-64ec-49f5-b102-6da96ae6912c
-    method: POST
-    timeout: 1000
-    keepalive: 1000
-    flush_timeout: 2
-    retry_count: 15
+        strip_path: false
+        https_redirect_status_code: 426
+        plugins:
+          - name: acl
+            config:
+              allow:
+                - development
+              deny: null
+              hide_groups_header: true
+            enabled: true
+            protocols:
+              - http
+              - https
+          - name: jwt
+            config:
+              anonymous: null
+              claims_to_verify:
+                - exp
+              cookie_names: []
+              header_names:
+                - authorization
+              key_claim_name: iss
+              maximum_expiration: 86500
+              run_on_preflight: true
+              secret_is_base64: false
+              uri_param_names:
+                - jwt
+            enabled: true
+            protocols:
+              - http
+              - https
+      - name: flowti-timeline-routes
+        hosts:
+          - localhost
+        methods:
+          - GET
+          - OPTIONS
+          - POST
+        paths:
+          - /api/v1/timeline
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+        plugins:
+          - name: acl
+            config:
+              allow:
+                - development
+              deny: null
+              hide_groups_header: true
+            enabled: true
+            protocols:
+              - http
+              - https
+          - name: cors
+            config:
+              credentials: true
+              exposed_headers:
+                - X-Auth-Token
+                - Access-Control-Allow-Origin
+              headers:
+                - Accept
+                - Accept-Version
+                - Accept-Encoding
+                - User-Agent
+                - Access-Control-Allow-Origin
+                - Content-Length
+                - Content-MD5
+                - Content-Type
+                - Date
+                - Authorization
+                - X-Auth-Token
+              max_age: 3600
+              methods:
+                - GET
+                - POST
+              origins:
+                - "*"
+              preflight_continue: false
+            enabled: true
+            protocols:
+              - http
+              - https
+          - name: jwt
+            config:
+              anonymous: null
+              claims_to_verify:
+                - exp
+              cookie_names: []
+              header_names:
+                - authorization
+              key_claim_name: iss
+              maximum_expiration: 86500
+              run_on_preflight: true
+              secret_is_base64: false
+              uri_param_names:
+                - jwt
+            enabled: true
+            protocols:
+              - http
+              - https
+      - name: flowti-chatbot-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+          - OPTIONS
+          - POST
+        paths:
+          - /api/v1/chatbot
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+        plugins:
+          - name: acl
+            config:
+              allow:
+                - development
+              deny: null
+              hide_groups_header: true
+            enabled: true
+            protocols:
+              - http
+              - https
+          - name: basic-auth
+            config:
+              anonymous: null
+              hide_credentials: true
+            enabled: true
+            protocols:
+              - http
+              - https
+      - name: flowti-swagger-ui-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+        paths:
+          - /api/swagger-ui
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+        plugins:
+          - name: basic-auth
+            config:
+              anonymous: null
+              hide_credentials: true
+            enabled: true
+            protocols:
+              - http
+              - https
+      - name: flowti-swagger-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+        paths:
+          - /api/swagger-resources
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+      - name: flowti-api-docs-v1-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+        paths:
+          - /api/v1/api-docs
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+      - name: flowti-api-docs-v2-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+        paths:
+          - /api/v2/api-docs
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+      - name: flowti-noauth-route
+        hosts:
+          - localhost
+        methods:
+          - GET
+          - OPTIONS
+          - POST
+        paths:
+          - /api/v1/auth
+          - /api/v1/servicedesk/emergencies/capture
+          - /api/v1/crises
+          - /api/v1/inova
+        path_handling: v0
+        preserve_host: false
+        protocols:
+          - http
+          - https
+        regex_priority: 0
+        strip_path: false
+        https_redirect_status_code: 426
+consumers:
+  - custom_id: 0e9eb227-7910-40e1-8952-99f5b26a4396
+    username: jwt_hml
+    jwt_secrets:
+      - algorithm: RS256
+        key: gBBHpGYyuZRiiliuxSkYMMr97zuChCDx
+        rsa_public_key: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5LTAb1f4G+r/sUGdb923
+          8QfVSOiKm/8H9Jr7toMiA7GoHWICXT8w3dt1MAMp2hWdLkkLzwQolPlg+e2Xuf7h
+          MIH3vp67nRLzQsJC3o+kyUnvs/90f3FGPMgpP4dPiII4fAHvjF+JOtm2YqZhh39X
+          Tms9wyM4+TilSMJB6XRDSEULUvnFf6FUNHQcoEczHdWb8C1804b2MaFsw9aBkUdD
+          phBXH3YrzRz0GSN1Uy9KvFL/u+IUGUQCgU7eZa44qHUMypOfUgWkbOdpEw9bQzty
+          70bP+27LQF1D6PpX12dpJjm96tOUxcWNZdW+km28+1Msvfq99Juv13MePOPz+EGx
+          bQIDAQAB
+          -----END PUBLIC KEY-----
+        secret: 0gvo6xNIBlfsTUh3MN2Rb9budmwfK0dS
+    acls:
+      - group: development
+  - username: swagger
+    basicauth_credentials:
+      - username: swagger
+        password: 84134dfed714257575b079d9a637ef139758d2b6
+  - username: techdev
+    keyauth_credentials:
+      - key: 9dbd0ca2756396440b1046efa787081e4e32b27479ba225979d80150e6d4fd38
+    acls:
+      - group: development
+  - username: watson-hml
+    basicauth_credentials:
+      - username: watson-hml
+        password: 050c23fcfb82c7b78c480516c11ac53c4fdcacd2
+    acls:
+      - group: development

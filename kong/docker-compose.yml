@@ -9,7 +9,7 @@ networks:
 
 services:
   kong-migrations:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    image: registry-proxy.indyxa.com.br/kong:2.2-alpine
     command: kong migrations bootstrap
     depends_on:
       - db
@@ -29,7 +29,7 @@ services:
         condition: on-failure
 
   kong-migrations-up:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    image: registry-proxy.indyxa.com.br/kong:2.2-alpine
     command: kong migrations up && kong migrations finish
     depends_on:
       - db
@@ -49,7 +49,7 @@ services:
         condition: on-failure
 
   kong:
-    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    image: registry-proxy.indyxa.com.br/kong:2.2-alpine
     container_name: kong
     user: "${KONG_USER:-kong}"
     depends_on:
@@ -86,7 +86,7 @@ services:
         condition: on-failure
     
   db:
-    image: postgres:9.6
+    image: registry-proxy.indyxa.com.br/postgres:12.2
     container_name: kong_db
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
@@ -113,7 +113,7 @@ services:
       - kong_data:/var/lib/postgresql/data
 
   konga:
-    image: pantsel/konga:latest
+    image: registry-proxy.indyxa.com.br/pantsel/konga:latest
     container_name: konga
     ports:
       - 1337:1337
