@@ -2,11 +2,11 @@ version: "3.8"
 
 services:
   splunk:
-    image: splunk/splunk
-    container_name: splunk
+    image: splunk/splunk:9.0.2
+    container_name: splunk-enterprise
     restart: "no"
     ports:
       - 8000:8000
     environment:
-      - SPLUNK_PASSWORD=pwdokiet2017#.
+      - SPLUNK_PASSWORD=Flowti123*.
       - SPLUNK_START_ARGS=--accept-license
